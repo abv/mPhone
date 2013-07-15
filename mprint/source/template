@@ -1,0 +1,33 @@
+<style>
+  h1, hr, div.content, div.details { float:left; width: 100% }
+  hr.after_h1 {height:15px}
+  .recording {float:right;margin:9px 0 10px 10px}
+  .recording p {line-height:1;margin:0 0 6px 0;}
+  .recording img {margin:0;padding:0;border:3px solid black;float:right;}
+  hr.after_content {height:5px;margin-bottom:15px;}
+  .details {position:relative;}
+  .details p {padding-left:110px;margin:0;}
+  .details p.attr {padding:0;text-align:right;position:absolute;bottom:0;right:0;}
+  .details p b {position:absolute;left:0;}
+</style>
+<h1><%= data.type %></h1>
+<hr class="after_h1">
+<div class="content">
+  <%if (data.recording) { %>
+  <div class='recording'>
+    <p>&#9654; <b>MP3</b></p>
+    <%- mprint.insertQR(data.recording + '.mp3', { type: "string", dot_size: 4 }) %>
+  </div>
+  <% } %>
+  <p class="jumbo"><%= data.text %></p>
+</div>
+<hr class="after_content">
+<div class="details">
+  <p><b>From:</b> <%= data.from %></p>
+  <p><b>To:</b> <%= data.to %></p>
+  <p><b>Recieved:</b> <%= data.date %></p>
+  <%if (data.recording_duration) { %>
+    <p><b>Duration:</b> <%= data.recording_duration %></p>
+  <% } %>
+  <p class="attr">Printed with mPhone!</p>
+</div>

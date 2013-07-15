@@ -3,8 +3,39 @@ var twilio_account_sid      = mprint.options.twilio_account_sid;
 var twilio_auth_token       = mprint.options.twilio_auth_token;
 var transcribe              = mprint.options.transcribe && mprint.options.transcribe != "0" ? true : false;
 var twilio_base_url         = "https://"+twilio_account_sid+":"+twilio_auth_token+"@api.twilio.com/2010-04-01/Accounts/"+twilio_account_sid;
-var voice_url               = "http://"+mprint_id+".mprinter.io/answer";
-var sms_url                 = "http://"+mprint_id+".mprinter.io/sms";
+var mprint_base_url         = "http://"+mprint_id+".mprints.themprinter.com";
+var voice_url               = mprint_base_url+"/answer";
+var sms_url                 = mprint_base_url+"/sms";
+
+/* 
+ * Utils / Helper Functions / Etc
+ */
+ 
+var seconds_to_hms = function(secs){
+    if (secs && parseInt(secs) > 0) {
+        return moment().startOf('day').add(parseInt(secs), 'seconds').format('H:mm:ss'); 
+    }
+    return false;
+}
+
+var pretty_phone_number = function(str){
+    if (str) {
+        var number = (str+"").replace(/\D+/g,'');;
+        if (number.length == 11 && number.substr(0, 1) == "1") {
+            number = number.substr(1);
+        } else if (number.length == 12 && number.substr(0, 2) == "+1") {
+            number = number.substr(2);
+        }
+        if (number.length == 10) {
+            return "("+number.substr(0,3)+") "+number.substr(3,3)+"-"+number.substr(6);
+        } else if (number.length == 7) {
+            return number.substr(0,3)+"-"+number.substr(3);
+        } else {
+            return number;
+        }
+    }
+    return false;
+}
 
 var get_number_friendly_name = function(number_id){
     return "mPhone-"+mprint_id+"-"+number_id;
@@ -38,11 +69,12 @@ var get_number = function(number_id, callback){
     });
 }
 
+/*
+ * Setup URLs
+ */
+
 mprint.registerURL("/", function(req, res) {
-    if (req.query.number_id === undefined) {
-        res.send('<meta http-equiv="refresh" content="0;/?number_id=0">');
-    }
-    var number_id = req.query.number_id;
+    var number_id = req.query.number_id || 0;
     var render_error = function(err){
         res.send('<h1>Error</h1><p>'+err.message+'</p>');
     }
@@ -132,6 +164,9 @@ mprint.registerURL("/setup/existing", function(req, res) {
     }
 });
 
+/*
+ * Twilio endpoint URLs
+ */
 
 mprint.registerURL("/answer", function(req, res) {
     var twiml = '<?xml version="1.0" encoding="UTF-8" ?><Response><Say>Please leave a message</Say><Record action="/voicemail" '+(transcribe ? 'transcribeCallback="/transcribe"' : '')+'/></Response>';
@@ -139,14 +174,14 @@ mprint.registerURL("/answer", function(req, res) {
 });
 
 mprint.registerURL("/voicemail", function(req, res) {    
-    var options = {"type":"Voicemail","from":req.body.From,"to":req.body.To,"recording":req.body.RecordingUrl};
+    var options = {"type":"Voicemail","from":req.body.From,"to":req.body.To,"recording":req.body.RecordingUrl,"recording_duration":req.body.RecordingDuration};
     if (options.recording) {
         if (transcribe) {
+            mprint.set("call:"+req.body.CallSid+":recording_duration", req.body.RecordingDuration);
             var twiml = '<?xml version="1.0" encoding="UTF-8" ?><Response><Say>Thank you. Goodbye.</Say></Response>'
             res.send(twiml, {'Content-Type':'text/xml'}, 200);
         } else {
             mprint.queue(options, function(err) {
-                mprint.debug(err);
                 var twiml = '<?xml version="1.0" encoding="UTF-8" ?><Response><Say>Thank you. Goodbye.</Say></Response>'
                 res.send(twiml, {'Content-Type':'text/xml'}, 200);
             }); 
@@ -159,25 +194,18 @@ mprint.registerURL("/voicemail", function(req, res) {
 
 mprint.registerURL("/transcribe", function(req, res) {
     var options = {"type":"Voicemail","from":req.body.From,"to":req.body.To,"text":req.body.TranscriptionText,"recording":req.body.RecordingUrl};
-    mprint.queue(options, function(err) {
-        mprint.debug(err);
-        res.send({ status: "ok" });
-    }); 
-});
-
-mprint.registerURL("/test", function(req, res) {
-    var options = {"type":"Test","from":"+12125555555","to":"+12125555555","text":"Hello world"};
-    mprint.queue(options, function(err) {
-        mprint.debug(err);
-        res.send({ status: "ok" });
-    }); 
+    mprint.get("call:"+req.body.CallSid+":recording_duration", function(err, val){
+      options['recording_duration'] = val;
+      mprint.queue(options, function(err) {
+          res.send({ status: "ok" });
+      });
+    });
 });
 
 mprint.registerURL("/sms", function(req, res) {
     var options = {"type":"SMS","from":req.body.From,"to":req.body.To,"text":req.body.Body};
     if (options.text) {
         mprint.queue(options, function(err) {
-            mprint.debug(err);
             res.send({ status: "ok" });
         });  
     } else {
@@ -185,24 +213,37 @@ mprint.registerURL("/sms", function(req, res) {
     }
 });
 
+/*
+ * Test mprint.queue() URL
+ */
+
+ mprint.registerURL("/test", function(req, res) {
+     var options = {"type":"Test","from":"+12125555555","to":"+12125555555","text":"Hello world"};
+     mprint.queue(options, function(err) {
+         res.send({ status: "ok" });
+     }); 
+ });
+ 
+/* 
+ * PRINT!!!
+ */
+
 mprint.preparePrint(function(options) {
-    var type = options.type;
-    var text = options.text;
-    var recording = options.recording;
-    var date = moment();
-    var from = options.from;
-    var to = options.to;
-    mprint.appendHTML("<h3>"+type+"</h3>");
-    if (recording) {
-        mprint.appendHTML("<p>");
-        mprint.insertQR(recording);
-        mprint.appendHTML("</p>");
+    var now = moment();
+    if (mprint.options.timezone_offset){
+        now.add(parseInt(mprint.options.timezone_offset),'hours')
+        //now.zone(mprint.options.timezone_offset); # Needs latest version of moment installed
     }
-    if (text) {
-        mprint.appendHTML("<p>");
-        mprint.appendHTML(text);
-        mprint.appendHTML("</p>");
-    }
-    mprint.appendHTML("<p>From: "+from+"<br>To: "+to+"<br>Recieved: "+date.format('MMMM Do YYYY, h:mm:ss a')+"</p>");
-    mprint.publish();
+    var params = {
+      type : options.type,
+      text : options.text,
+      recording : options.recording,
+      recording_duration : seconds_to_hms(options.recording_duration),
+      from : pretty_phone_number(options.from),
+      date : now.format('llll'),
+      to : pretty_phone_number(options.to)
+    };
+    mprint.renderTemplate("template", {mprint: mprint, data: params} , function(err) {
+        mprint.publish();
+    });
 });

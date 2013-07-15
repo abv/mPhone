@@ -1,15 +1,24 @@
--
-  name: Twilio Account SID
-  variable: twilio_account_sid
-  mandatory: true
-  type: set_once
--
-  name: Twilio Auth Token
-  variable: twilio_auth_token
-  mandatory: true
-  type: set_once
--
-  name: Transcribe Voicemail
-  variable: transcribe
-  mandatory: true
-  type: set_once
+configurable_fields:
+  -
+    name: Twilio Account SID
+    variable: twilio_account_sid
+    mandatory: true
+    type: set_once
+  -
+    name: Twilio Auth Token
+    variable: twilio_auth_token
+    mandatory: true
+    type: set_once
+  -
+    name: Transcribe Voicemail
+    variable: transcribe
+    mandatory: true
+    type: set_once
+  -
+    name: Timezone Offset
+    variable: timezone_offset
+    description: Hours from UTC. For example, -4 for EST/EDT.
+    mandatory: false
+    type: set_once
+remote_access: true
+additional: Source code at https://github.com/abv/mPhone
