@@ -1,0 +1,15 @@
+-
+  name: Twilio Account SID
+  variable: twilio_account_sid
+  mandatory: true
+  type: set_once
+-
+  name: Twilio Auth Token
+  variable: twilio_auth_token
+  mandatory: true
+  type: set_once
+-
+  name: Transcribe Voicemail
+  variable: transcribe
+  mandatory: true
+  type: set_once
