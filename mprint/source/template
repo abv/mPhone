@@ -2,7 +2,7 @@
   h1, hr, div.content, div.details { float:left; width: 100% }
   hr.after_h1 {height:15px}
   .recording {float:right;margin:9px 0 10px 10px}
-  .recording p {line-height:1;margin:0 0 6px 0;}
+  .recording p {line-height:1;margin:0;border-top:2px solid black; text-align:center;color:white;background-color:black;}
   .recording img {margin:0;padding:0;border:3px solid black;float:right;}
   hr.after_content {height:5px;margin-bottom:15px;}
   .details {position:relative;}
@@ -25,7 +25,7 @@
 <div class="details">
   <p><b>From:</b> <%= data.from %></p>
   <p><b>To:</b> <%= data.to %></p>
-  <p><b>Recieved:</b> <%= data.date %></p>
+  <p><b>Received:</b> <%= data.request_time %></p>
   <%if (data.recording_duration) { %>
     <p><b>Duration:</b> <%= data.recording_duration %></p>
   <% } %>

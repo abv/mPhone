@@ -1,22 +1,33 @@
-mPhone turns your mPrinter into an answering machine. Once setup, you'll have a custom mPhone telephone number for your mPrinter. You'll be able to print voicemails and text messages when people call your mPhone.
+mPhone lets you print voicemails and text messages. Once setup, you'll have a custom mPhone telephone number for your mPrinter. You'll be able to print voicemails and text messages when people call or text you.
 
-### Known Issues ###
-* If we modify this mPrint's code after you've installed it, you'll still be running the old version. Check back here from time to time, to see if you should upgrade (by I guess removing & re-adding this mPrint???)
+*By Adam Varga / [@varga](https://twitter.com/varga)*
 
-### Setup ###
-1. Click "Add to My mPrints"
-2. Create a Twilio.com account (if you don't already have one)
-3. Go to the Options tab and enter your Twilio Account SID and Auth Token
-  * These can be found on your [Twilio account dashboard](https://www.twilio.com/user/account)
-4. If you are using a [free Twilio trial account](http://www.twilio.com/help/faq/twilio-basics/how-does-twilios-free-trial-work):
-  * Calls to your mPhone number will hear a short annoying message before the "leave a message" prompt.
-  * You will not be able to transcribe voicemails. Twilio charges for transcription. **Be sure to turn voicemail transcription off in the Options tab.**
-  * You will only be able to use the free number associated with your trial account. You will not be able to create a new number in step 5.
-  * This limitations are outside of our control. If you'd like to remove any of these limitations, [upgrade your Twilio account](https://www.twilio.com/user/billing/upgrade).
-5. Setup a phone number.
-  * Go to the Advanced tab.
-  * Click the remote access link. The one that looks like blahblahblahblah.mprinter.io.
-  * To setup a new number (you can't do this with a free Twilio trial account, because new phone numbers cost $1/month):
+Known Issues
+-----------------------------
+
+* If we modify this mPrint's code after you've installed it, you'll still be running the old version. Check back here from time to time, to see if the current mPhone version is newer than the version you've installed.
+
+Requirements
+-----------------------------
+
+* An mPrinter
+* A *free trial* or *paid* [Twilio](http://www.twilio.com) Account. Note that *free trial* accounts have some [limitations that will affect mPhone](http://www.twilio.com/help/faq/twilio-basics/how-does-twilios-free-trial-work):
+    * You won't be able to print voicemail transcriptions
+    * You won't be able to create additional phone numbers. You'll have to use the phone number provisioned when you setup your account with Twilio.
+    * Calls to your mPhone number will hear a short annoying message before the "leave a message" prompt.
+    * These limitations are outside of our control. If you'd like to remove any of these limitations, [upgrade your Twilio account](https://www.twilio.com/user/billing/upgrade).
+
+Setup
+-----------------------------
+
+1. Go to [http://manage.themprinter.com/mprints/details/51d77ecdf70787000000005c](http://manage.themprinter.com/mprints/details/51d77ecdf70787000000005c) and click "+ Add to My mPrints."
+2. Go to [My mPrints](http://manage.themprinter.com/mprints), and click the mPhone app. You should be at a URL that looks like http://manage.themprinter.com/mprints/edit/XXXXXXXXXXXXXXXXXXXXXXXX. Take note of the XXXXXXXXXXXXXXXXXXXXXXXX's. That's your mPhone's mprint_id.
+3. Go to the Options tab.
+  * Enter your Twilio Account SID and Auth Token. These can be found on your [Twilio account dashboard](https://www.twilio.com/user/account).
+  * Configure any additional options.
+4. Setup a phone number.
+  * Go to XXXXXXXXXXXXXXXXXXXXXXXX.mprinter.io (replace the XXXXXXXXXXXXXXXXXXXXXXXX's with your mprint_id).
+  * To setup a new number:
         * Click "setup a new number"
         * Enter the area code you'd like for your mPhone telephone number.
         * A list of available phone numbers for that area code will appear. Click the "Use" button next to the phone number you want to use.
@@ -24,4 +35,3 @@ mPhone turns your mPrinter into an answering machine. Once setup, you'll have a 
         * Click "use an existing number"
         * Search for the phone number you want to use.
         * A list of available phone numbers matching your search will appear. Click the "Use" button next to the phone number you want to use.
-  * That's it!

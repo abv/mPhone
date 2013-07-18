@@ -12,6 +12,7 @@ configurable_fields:
   -
     name: Transcribe Voicemail
     variable: transcribe
+    description: If you are using a free trial Twilio account, you must turn this off.
     mandatory: true
     type: set_once
   -

@@ -18,6 +18,16 @@ var seconds_to_hms = function(secs){
     return false;
 }
 
+var pretty_request_time = function(){
+  moment.lang('en'); // Why does this default to French if I don't do this?
+  var now = moment();
+  if (mprint.options.timezone_offset){
+      now.add(parseInt(mprint.options.timezone_offset),'hours')
+      //now.zone(mprint.options.timezone_offset); # Needs latest version of moment installed
+  }
+  return now.format('llll');
+}
+
 var pretty_phone_number = function(str){
     if (str) {
         var number = (str+"").replace(/\D+/g,'');;
@@ -174,10 +184,17 @@ mprint.registerURL("/answer", function(req, res) {
 });
 
 mprint.registerURL("/voicemail", function(req, res) {    
-    var options = {"type":"Voicemail","from":req.body.From,"to":req.body.To,"recording":req.body.RecordingUrl,"recording_duration":req.body.RecordingDuration};
+    var options = {
+      "type" :                "Voicemail",
+      "from" :                req.body.From,
+      "to" :                  req.body.To,
+      "recording" :           req.body.RecordingUrl,
+      "recording_duration" :  req.body.RecordingDuration,
+      "request_time" :         pretty_request_time()
+    };
     if (options.recording) {
         if (transcribe) {
-            mprint.set("call:"+req.body.CallSid+":recording_duration", req.body.RecordingDuration);
+            mprint.set("call:"+req.body.CallSid+":options", JSON.stringify(options));
             var twiml = '<?xml version="1.0" encoding="UTF-8" ?><Response><Say>Thank you. Goodbye.</Say></Response>'
             res.send(twiml, {'Content-Type':'text/xml'}, 200);
         } else {
@@ -193,9 +210,9 @@ mprint.registerURL("/voicemail", function(req, res) {
 });
 
 mprint.registerURL("/transcribe", function(req, res) {
-    var options = {"type":"Voicemail","from":req.body.From,"to":req.body.To,"text":req.body.TranscriptionText,"recording":req.body.RecordingUrl};
-    mprint.get("call:"+req.body.CallSid+":recording_duration", function(err, val){
-      options['recording_duration'] = val;
+    mprint.get("call:"+req.body.CallSid+":options", function(err, val){
+      var options = JSON.parse(val);
+      options['text'] = req.body.TranscriptionText;
       mprint.queue(options, function(err) {
           res.send({ status: "ok" });
       });
@@ -203,7 +220,13 @@ mprint.registerURL("/transcribe", function(req, res) {
 });
 
 mprint.registerURL("/sms", function(req, res) {
-    var options = {"type":"SMS","from":req.body.From,"to":req.body.To,"text":req.body.Body};
+    var options = {
+      "type" :          "SMS",
+      "from" :          req.body.From,
+      "to" :            req.body.To,
+      "text" :          req.body.Body,
+      "request_time" :   pretty_request_time()
+      };
     if (options.text) {
         mprint.queue(options, function(err) {
             res.send({ status: "ok" });
@@ -229,19 +252,14 @@ mprint.registerURL("/sms", function(req, res) {
  */
 
 mprint.preparePrint(function(options) {
-    var now = moment();
-    if (mprint.options.timezone_offset){
-        now.add(parseInt(mprint.options.timezone_offset),'hours')
-        //now.zone(mprint.options.timezone_offset); # Needs latest version of moment installed
-    }
     var params = {
       type : options.type,
       text : options.text,
       recording : options.recording,
       recording_duration : seconds_to_hms(options.recording_duration),
       from : pretty_phone_number(options.from),
-      date : now.format('llll'),
-      to : pretty_phone_number(options.to)
+      to : pretty_phone_number(options.to),
+      request_time : options.request_time
     };
     mprint.renderTemplate("template", {mprint: mprint, data: params} , function(err) {
         mprint.publish();
