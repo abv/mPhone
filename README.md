@@ -10,7 +10,10 @@ Print voicemails and text messages with an mPrinter
 Running on your mPrinter
 -----------------------------
 
-"[mPrinter](http://themprinter.com/) is a small WiFi-enabled device that prints dynamic snippets of information". To get mPhone running on your mPrinter, login to  [http://manage.themprinter.com/mprints/details/51d77ecdf70787000000005c](http://manage.themprinter.com/mprints/details/51d77ecdf70787000000005c) and follow the directions there.
+The [mPrinter](http://themprinter.com/) is a small WiFi-enabled thermal printer with an API. To get mPhone running on your mPrinter, login to  [http://manage.themprinter.com/mprints/details/51d77ecdf70787000000005c](http://manage.themprinter.com/mprints/details/51d77ecdf70787000000005c) and follow the directions there.
+
+Once setup, you'll have a custom mPhone telephone number for your mPrinter. You'll be able to print voicemails and text messages when people call or text you.
+
 
 Repo structure
 -----------------------------
